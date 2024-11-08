@@ -41,9 +41,17 @@ Jetson Nano、Raspberry Pi、Arduino、STM32 Demo:  </br>
     > Arduino UNO R4 </br>
 * STM32:  
     > STM32F103ZET6 </br>
+* imx6 
+    > VAR-SOM-SOLO/DUAL </br>
     
 For more information, please search on the official website:   </br>
 https://www.waveshare.com</br>
+
+## TEMP
+
+building for test display VARSOM
+
+make VARSOM EPD=epd7in5bV2
 
 
 

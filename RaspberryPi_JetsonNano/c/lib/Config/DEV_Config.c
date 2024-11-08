@@ -69,6 +69,10 @@ void DEV_Digital_Write(UWORD Pin, UBYTE Value)
 	Debug("not support");
 #endif
 #endif
+
+#ifdef VARSOM
+	SYSFS_GPIO_Write(Pin, Value);
+#endif
 }
 
 UBYTE DEV_Digital_Read(UWORD Pin)
@@ -92,6 +96,10 @@ UBYTE DEV_Digital_Read(UWORD Pin)
 #elif USE_HARDWARE_LIB
 	Debug("not support");
 #endif
+#endif
+
+#ifdef VARSOM
+	Read_value = SYSFS_GPIO_Read(Pin);
 #endif
 	return Read_value;
 }
@@ -119,6 +127,10 @@ void DEV_SPI_WriteByte(uint8_t Value)
 #elif USE_HARDWARE_LIB
 	Debug("not support");
 #endif
+#endif
+
+#ifdef VARSOM
+	DEV_HARDWARE_SPI_TransferByte(Value);
 #endif
 }
 
@@ -197,6 +209,11 @@ void DEV_GPIO_Mode(UWORD Pin, UWORD Mode)
 	Debug("not support");
 #endif
 #endif
+
+#ifdef VARSOM
+	SYSFS_GPIO_Export(Pin);
+	SYSFS_GPIO_Direction(Pin, Mode);
+#endif
 }
 
 /**
@@ -220,6 +237,13 @@ void DEV_Delay_ms(UDOUBLE xms)
 #endif
 
 #ifdef JETSON
+	UDOUBLE i;
+	for(i=0; i < xms; i++) {
+		usleep(1000);
+	}
+#endif
+
+#ifdef VARSOM
 	UDOUBLE i;
 	for(i=0; i < xms; i++) {
 		usleep(1000);
@@ -272,6 +296,17 @@ static int DEV_Equipment_Testing(void)
 		return -1;
 	}
 #endif
+
+#ifdef VARSOM
+	char system[] = {"Ubuntu"};
+	if (strstr(issue_str, system) != NULL) {
+		printf("%s\n", system);
+	} else {
+		printf("not recognized = %s\n", issue_str);
+		printf("Built for VARSOM, but unable to detect environment.\n");
+		return 0;
+	}
+#endif
 	return 0;
 }
 
@@ -295,6 +330,12 @@ void DEV_GPIO_Init(void)
 	EPD_BUSY_PIN    = GPIO24;
     EPD_MOSI_PIN    = SPI0_MOSI;
 	EPD_SCLK_PIN    = SPI0_SCLK;
+#elif VARSOM
+	EPD_RST_PIN     = GPIO_RST;
+	EPD_DC_PIN      = GPIO_DC;
+	EPD_CS_PIN      = GPIO_CS;
+    EPD_PWR_PIN     = GPIO_PWR;
+	EPD_BUSY_PIN    = GPIO_BUSY;
 #endif
 
     DEV_GPIO_Mode(EPD_BUSY_PIN, 0);
@@ -462,6 +503,11 @@ UBYTE DEV_Module_Init(void)
 	DEV_HARDWARE_SPI_begin("/dev/spidev0.0");
 #endif
 
+#elif VARSOM
+	printf("Write and read /dev/spidev0.0 \r\n");
+	DEV_GPIO_Init();
+	DEV_HARDWARE_SPI_begin("/dev/spidev0.0");
+	DEV_HARDWARE_SPI_setSpeed(10000000);
 #endif
     printf("/***********************************/ \r\n");
 	return 0;
@@ -511,7 +557,18 @@ void DEV_Module_Exit(void)
 #elif JETSON
 #ifdef USE_DEV_LIB
 	SYSFS_GPIO_Unexport(EPD_CS_PIN);
-    SYSFS_GPIO_Unexport(EPD_PWR_PIN;
+    SYSFS_GPIO_Unexport(EPD_PWR_PIN);
+	SYSFS_GPIO_Unexport(EPD_DC_PIN);
+	SYSFS_GPIO_Unexport(EPD_RST_PIN);
+	SYSFS_GPIO_Unexport(EPD_BUSY_PIN);
+#elif USE_HARDWARE_LIB
+	Debug("not support");
+#endif
+
+#elif VARSOM
+#ifdef USE_DEV_LIB
+	SYSFS_GPIO_Unexport(EPD_CS_PIN);
+    SYSFS_GPIO_Unexport(EPD_PWR_PIN);
 	SYSFS_GPIO_Unexport(EPD_DC_PIN);
 	SYSFS_GPIO_Unexport(EPD_RST_PIN);
 	SYSFS_GPIO_Unexport(EPD_BUSY_PIN);

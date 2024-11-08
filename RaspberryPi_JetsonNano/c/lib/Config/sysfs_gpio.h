@@ -75,6 +75,14 @@
 // 22PIN + 2PIN UART0 + 2PIN I2C0 + 2PIN I2C
 // + 2PIN 3V3 + 2PIN 5V + 8PIN GND  = 40PIN
 
+//VAR-SOM-SOLO
+#define GPIO_PWR	161
+#define GPIO_BUSY	160
+#define GPIO_RST	159
+#define GPIO_DC		158
+#define GPIO_CS		41
+
+
 int SYSFS_GPIO_Export(int Pin);
 int SYSFS_GPIO_Unexport(int Pin);
 int SYSFS_GPIO_Direction(int Pin, int Dir);

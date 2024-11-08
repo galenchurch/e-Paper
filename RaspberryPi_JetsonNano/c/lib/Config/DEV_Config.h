@@ -82,6 +82,13 @@
 
 #endif
 
+#ifdef VARSOM
+
+    #include "sysfs_gpio.h"    
+    #include "dev_hardware_SPI.h"
+
+#endif
+
 /**
  * data
 **/

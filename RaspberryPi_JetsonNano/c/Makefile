@@ -225,6 +225,7 @@ OBJ_C = $(wildcard ${OBJ_C_EPD} ${DIR_GUI}/*.c ${OBJ_C_Examples} ${DIR_Examples}
 OBJ_O = $(patsubst %.c,${DIR_BIN}/%.o,$(notdir ${OBJ_C}))
 RPI_DEV_C = $(wildcard $(DIR_BIN)/dev_hardware_SPI.o $(DIR_BIN)/RPI_gpiod.o $(DIR_BIN)/DEV_Config.o )
 JETSON_DEV_C = $(wildcard $(DIR_BIN)/sysfs_software_spi.o $(DIR_BIN)/sysfs_gpio.o $(DIR_BIN)/DEV_Config.o )
+VARSOM_DEV_C = $(wildcard $(DIR_BIN)/dev_hardware_SPI.o $(DIR_BIN)/sysfs_gpio.o $(DIR_BIN)/DEV_Config.o )
 
 
 DEBUG = -D DEBUG
@@ -255,13 +256,16 @@ else ifeq ($(USELIB_JETSONI), USE_HARDWARE_LIB)
 endif
 DEBUG_JETSONI = -D $(USELIB_JETSONI) -D JETSON
 
-.PHONY : RPI JETSON clean
+DEBUG_VARSOM = -D VARSOM
+
+.PHONY : RPI JETSON VARSOM clean
 
 RPI:RPI_DEV RPI_epd 
 JETSON: JETSON_DEV JETSON_epd
+VARSOM: VARSOM_DEV VARSOM_epd
 
 TARGET = epd
-CC = gcc
+# CC = gcc
 MSG = -g -O -ffunction-sections -fdata-sections -Wall
 CFLAGS += $(MSG) -D $(EPD)
 
@@ -272,6 +276,10 @@ RPI_epd:${OBJ_O}
 JETSON_epd:${OBJ_O}
 	echo $(@)
 	$(CC) $(CFLAGS) $(OBJ_O) $(JETSON_DEV_C) -o $(TARGET) $(LIB_JETSONI) $(DEBUG)
+
+VARSOM_epd:${OBJ_O}
+	echo $(@)
+	$(CC) $(CFLAGS) $(OBJ_O) $(VARSOM_DEV_C) -o $(TARGET) $(DEBUG)
 
 $(shell mkdir -p $(DIR_BIN))
 
@@ -301,6 +309,11 @@ JETSON_DEV:
 	$(CC) $(CFLAGS) $(DEBUG_JETSONI) -c	 $(DIR_Config)/sysfs_software_spi.c -o $(DIR_BIN)/sysfs_software_spi.o $(LIB_JETSONI) $(DEBUG)
 	$(CC) $(CFLAGS) $(DEBUG_JETSONI) -c	 $(DIR_Config)/sysfs_gpio.c -o $(DIR_BIN)/sysfs_gpio.o $(LIB_JETSONI) $(DEBUG)
 	$(CC) $(CFLAGS) $(DEBUG_JETSONI) -c	 $(DIR_Config)/DEV_Config.c -o $(DIR_BIN)/DEV_Config.o $(LIB_JETSONI)  $(DEBUG)
+
+VARSOM_DEV:
+	$(CC) $(CFLAGS) $(DEBUG_VARSOM) -c	 $(DIR_Config)/dev_hardware_SPI.c -o $(DIR_BIN)/dev_hardware_SPI.o $(LIB_RPI) $(DEBUG)
+	$(CC) $(CFLAGS) $(DEBUG_VARSOM) -c	 $(DIR_Config)/sysfs_gpio.c -o $(DIR_BIN)/sysfs_gpio.o $(LIB_RPI) $(DEBUG)
+	$(CC) $(CFLAGS) $(DEBUG_VARSOM) -c	 $(DIR_Config)/DEV_Config.c -o $(DIR_BIN)/DEV_Config.o $(LIB_RPI) $(DEBUG)
 
 clean :
 	rm $(DIR_BIN)/*.* 
